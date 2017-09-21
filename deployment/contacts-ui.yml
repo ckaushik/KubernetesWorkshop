@@ -1,32 +1,16 @@
 apiVersion: v1
-kind: Service
-metadata:
-  name: contacts-ui
-spec:
-  ports:
-  - name: npm
-    port: 3000
-    targetPort: 3000
-  - name: http
-    port: 80
-    targetPort: 80
-  selector:
-    app: contacts-ui
-  type: NodePort
----
-apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: contacts-ui
+  name: contacts-ui-VERSION
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: contacts-ui
+        app: contacts-ui-VERSION
     spec:
       containers:
-        - name: contacts-ui
+        - name: contacts-ui-VERSION
           image: senthilrajar/devopsbyexample:contacts-ui
           ports:
             - containerPort: 3000
