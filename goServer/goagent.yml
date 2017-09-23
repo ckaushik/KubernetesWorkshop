@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: goagent
+  labels:
+    app: goagent
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: goagent
+    spec:
+      containers:
+      - image: gocd/gocd-agent-alpine-3.5:v17.9.0
+        name: goagent
+        env:
+        - name: GO_SERVER_URL
+          value: https://goserver:8154/go
+        ports:
+        - containerPort: 8153
+          name: goagent-http

@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: goserver
+  labels:
+    app: goserver
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 8153
+    - name: https
+      port: 8154
+  selector:
+    app: goserver
+    tier: frontend
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: goserver-pv-claim
+  labels:
+    app: goserver
+    tier: frontend
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: goserver
+  labels:
+    app: goserver
+    tier: frontend
+spec:
+  strategy:
+    type: Recreate  #https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+  template:
+    metadata:
+      labels:
+        app: goserver
+        tier: frontend
+    spec:
+      volumes:
+      - name: goserver-persistent-storage #pod level mapping
+        persistentVolumeClaim:
+          claimName: goserver-pv-claim
+      containers:
+      - image: gocd/gocd-server:v17.9.0
+        name: goserver
+        env:
+        ports:
+        - containerPort: 8153
+          name: goserver-http
+        - containerPort: 8154
+          name: goserver-https
+        volumeMounts: #container level mapping
+        - mountPath: /mnt
+          name: goserver-persistent-storage
